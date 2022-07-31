@@ -35,7 +35,7 @@ from bs4 import BeautifulSoup
 import pandas as pd
 import time
 
-class AmazonBestSellerScraper:
+class AmazonScraper:
 
 
     def __init__(self, url = "https://www.amazon.com/Best-Sellers/zgbs" , 
@@ -63,7 +63,7 @@ class AmazonBestSellerScraper:
 # END CLASS
 def main():    ## Example of a run and usecase. This could be imported 
     end_timer= time.time() +60 * 2 #Allow run twice
-    amazon_scraper = AmazonBestSellerScraper()
+    amazon_scraper = AmazonScraper()
     while time.time() < end_timer:
         amazon_scraper.scrapeData() # Scrape the data This allows us to cache the result should we so choose. 
         amazon_scraper.review_count_scrape()   
