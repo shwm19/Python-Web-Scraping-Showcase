@@ -45,12 +45,11 @@ class AmazonScraper:
 
 
     def review_count_scrape(self):
-        soup = BeautifulSoup(r.content, 'lxml' )
+        soup = BeautifulSoup(self.r.content, 'lxml' )
         product_review_counts = [i.find("span",class_="a-size-small").text for i in soup.find_all("div",class_="a-icon-row")]
         # Need to find a way to abstract htis so it's not a magic string of some sort
         df = pd.DataFrame(product_review_counts)
         print(df) #Prints the dataframe for now.
-        
         #add timer
         time.sleep(60)
 
@@ -68,5 +67,5 @@ def main():    ## Example of a run and usecase. This could be imported
         amazon_scraper.scrapeData() # Scrape the data This allows us to cache the result should we so choose. 
         amazon_scraper.review_count_scrape()   
 
-if __name__ == "__main__":
+if __name__ == "__main__": #If you run the module you'll run a test of a couple functions. 
     main()
