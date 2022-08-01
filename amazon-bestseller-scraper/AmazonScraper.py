@@ -8,15 +8,6 @@ Created on Sat Dec 11 14:38:23 2021
 Retrieve number of reviews for products on the page.  AWS Best Sellers
 Put into a Dataframe
 
-7/31/2022 - added Scaper to class 
-
-TODO: 
-Add Product Names and Categories
-Add Ability to specify Category
-Add abilitity to specify multiple categories
-Add ability UI
-Add ability to manipulate timer from UI
-
 """
 
 class Not200OK(Exception):
@@ -44,28 +35,42 @@ class AmazonScraper:
         self.headers = headers
 
 
-    def review_count_scrape(self):
-        soup = BeautifulSoup(self.r.content, 'lxml' )
-        product_review_counts = [i.find("span",class_="a-size-small").text for i in soup.find_all("div",class_="a-icon-row")]
-        # Need to find a way to abstract htis so it's not a magic string of some sort
-        df = pd.DataFrame(product_review_counts)
-        print(df) #Prints the dataframe for now.
-        #add timer
-        time.sleep(60)
-
-
     def scrapeData(self): #Responsible for grabbing the data.
         self.r = requests.get(self.url, headers = self.headers)
         if self.r.status_code != 200: #Validate we got a 200
             raise Not200OK(self.r.status_code)
 
+
+    def bestSellerNamesAndNumReviews(self):
+        soup = BeautifulSoup(self.r.content, 'lxml' )
+        product_review_counts =[]
+        divs_to_parse = [i for i in soup.find_all("li",class_="a-carousel-card")]
+        data = {"name": [],  "rating": [], "price": []  }
+        for div in divs_to_parse:
+            data['name'].append( div.find("img",alt=True, class_="a-dynamic-image")["alt"])
+            data['rating'].append( div.find("span",class_="a-icon-alt").text)
+            data['price'].append( div.find("span",class_="a-size-base").text)
+        pd.set_option('display.max_colwidth', None)
+        df = pd.DataFrame(data)
+        print(df)
+        self.debugOutput()
+
+
+    def debugOutput(self):
+        with open("debug.html" , "w",  encoding="utf-8") as dl:
+            dl.write(self.r.text)
+
 # END CLASS
 def main():    ## Example of a run and usecase. This could be imported 
-    end_timer= time.time() +60 * 2 #Allow run twice
+    timeToWait = 60 #Time in seconds to wait
+    end_timer= time.time() +timeToWait * 2 #Allow run twice
     amazon_scraper = AmazonScraper()
     while time.time() < end_timer:
         amazon_scraper.scrapeData() # Scrape the data This allows us to cache the result should we so choose. 
-        amazon_scraper.review_count_scrape()   
+        #amazon_scraper.review_count_scrape()   
+        amazon_scraper.bestSellerNamesAndNumReviews()
+        #add timer
+        time.sleep(timeToWait)
 
 if __name__ == "__main__": #If you run the module you'll run a test of a couple functions. 
     main()
